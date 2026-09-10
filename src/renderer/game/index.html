@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GRIP League - Game</title>
+    <link rel="stylesheet" href="game.css" />
+  </head>
+  <body>
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="screen active">
+      <div class="welcome-content">
+        <img
+          src="../../../public/Logo.png"
+          alt="GRIP League Logo"
+          class="main-logo"
+        />
+        <h1 class="game-title">GRIP LEAGUE</h1>
+        <div id="gameTypeBadge" class="game-type-badge"></div>
+        <div id="teamsDisplay" class="teams-display"></div>
+        <button class="btn btn-large" onclick="showRules()">START GAME</button>
+      </div>
+    </div>
+
+    <!-- Rules Screen -->
+    <div id="rulesScreen" class="screen">
+      <div class="rules-content">
+        <h1 style="margin-bottom: 10px">GAME RULES</h1>
+
+        <div class="rules-grid">
+          <!-- Card 1: Round 1 -->
+          <div class="rules-card">
+            <h2>ROUND 1: TEAM QUESTIONS</h2>
+            <ul class="rules-list">
+              <li>5 questions per team</li>
+              <li>15 seconds per question</li>
+              <li>
+                Correct:
+                <strong style="color: var(--success)">+10 points</strong>
+              </li>
+              <li>
+                Wrong: <strong style="color: var(--danger)">-5 points</strong>
+              </li>
+              <li>No Answer: 0 points</li>
+            </ul>
+          </div>
+
+          <!-- Card 2: Lifelines -->
+          <div class="rules-card">
+            <h2>LIFELINES (R1 Only)</h2>
+            <div class="lifelines-grid">
+              <div class="lifeline-item">
+                <div class="lifeline-icon">🚫</div>
+                <div>
+                  <strong>SKIP</strong><br />
+                  <small>Next question, no penalty</small>
+                </div>
+              </div>
+              <div class="lifeline-item">
+                <div class="lifeline-icon">50:50</div>
+                <div>
+                  <strong>50:50</strong><br />
+                  <small>Remove 2 wrong options</small>
+                </div>
+              </div>
+              <div class="lifeline-item">
+                <div class="lifeline-icon">👥</div>
+                <div>
+                  <strong>AUDIENCE</strong><br />
+                  <small>Ask the room for help</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Round 2 -->
+          <div class="rules-card">
+            <h2>ROUND 2: BUZZER</h2>
+            <ul class="rules-list">
+              <li>10 questions for all teams</li>
+              <li>First to buzz answers</li>
+              <li>15 seconds to answer</li>
+              <li>
+                Correct:
+                <strong style="color: var(--success)">+10 points</strong>
+              </li>
+              <li>
+                Wrong: <strong style="color: var(--danger)">-5 points</strong>
+              </li>
+              <li>No lifelines allowed</li>
+            </ul>
+          </div>
+
+          <!-- Card 4: Tie-Breaker -->
+          <div class="rules-card">
+            <h2>ROUND 3: TIE-BREAKER</h2>
+            <ul class="rules-list">
+              <li>Only if scores are equal</li>
+              <li>Sudden death format</li>
+              <li>No lifelines allowed</li>
+              <li>Winner takes trophy!</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px; text-align: center">
+          <button class="btn btn-large" onclick="startRound1()">
+            BEGIN GAME
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Round 1: Team Questions -->
+    <div id="round1Screen" class="screen">
+      <div class="game-header">
+        <div style="display: flex; align-items: center; gap: 20px">
+          <div class="round-indicator">ROUND 1: TEAM QUESTIONS</div>
+          <button
+            class="btn btn-secondary btn-header-audience"
+            onclick="showAudienceQuestionButton()"
+          >
+            👥 Audience Question
+          </button>
+        </div>
+        <div class="scoreboard-mini" id="scoreboardMini"></div>
+      </div>
+
+      <div class="current-team-display" id="currentTeamDisplay"></div>
+
+      <div class="question-container">
+        <div class="question-number" id="questionNumber"></div>
+        <div class="timer" id="timer">15</div>
+        <h2 class="question-text" id="questionText"></h2>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <div class="lifelines-bar" id="lifelinesBar"></div>
+      </div>
+    </div>
+
+    <!-- Audience Question Screen -->
+    <div id="audienceScreen" class="screen">
+      <div class="audience-content">
+        <h1>AUDIENCE QUESTION</h1>
+        <h2 class="question-text" id="audienceQuestionText"></h2>
+        <div class="options-grid" id="audienceOptionsGrid"></div>
+        <button class="btn btn-large" onclick="continueGame()">CONTINUE</button>
+      </div>
+    </div>
+
+    <!-- Round 2: Buzzer Round -->
+    <div id="round2Screen" class="screen">
+      <div class="game-header">
+        <div class="round-indicator">ROUND 2: BUZZER ROUND</div>
+        <div class="scoreboard-mini" id="scoreboardMiniR2"></div>
+      </div>
+
+      <div class="buzzer-status" id="buzzerStatus">
+        <p>Press your buzzer to answer!</p>
+      </div>
+
+      <!-- Team Selection for Buzzer -->
+      <div
+        id="teamBuzzerSelection"
+        class="team-buzzer-selection"
+        style="display: none"
+      >
+        <h2 style="margin-bottom: 30px; color: var(--primary)">
+          Which team buzzed in?
+        </h2>
+        <div id="teamBuzzerButtons" class="team-buzzer-buttons"></div>
+      </div>
+
+      <div class="question-container">
+        <div class="question-number" id="questionNumberR2"></div>
+        <div class="timer" id="timerR2">15</div>
+        <h2 class="question-text" id="questionTextR2"></h2>
+
+        <div class="options-grid" id="optionsGridR2"></div>
+      </div>
+
+      <!-- Admin controls moved to footer -->
+    </div>
+
+    <!-- Tie-Breaker Screen -->
+    <div id="tieBreakerScreen" class="screen">
+      <div class="game-header">
+        <div class="round-indicator tiebreaker">ROUND 3: TIE-BREAKER</div>
+        <div class="scoreboard-mini" id="scoreboardMiniTB"></div>
+      </div>
+
+      <div class="tiebreaker-info">
+        <h2>SUDDEN DEATH</h2>
+        <p>First team to answer correctly wins!</p>
+      </div>
+
+      <div class="question-container">
+        <div class="timer" id="timerTB">15</div>
+        <h2 class="question-text" id="questionTextTB"></h2>
+        <div class="options-grid" id="optionsGridTB"></div>
+      </div>
+
+      <!-- Admin controls moved to footer -->
+    </div>
+
+    <!-- Winner Screen -->
+    <div id="winnerScreen" class="screen">
+      <div class="winner-content">
+        <div id="winnerDisplay" class="winner-display"></div>
+        <div id="finalScoreboard" class="final-scoreboard"></div>
+        <button class="btn btn-large" onclick="closeGame()">CLOSE GAME</button>
+      </div>
+    </div>
+
+    <!-- Branding Footer (Persistent) -->
+    <!-- Persistent Footer with Branding & Controls -->
+    <div class="branding-footer">
+      <img
+        src="../../../public/Scilife.png"
+        alt="Scilife"
+        class="footer-logo"
+      />
+
+      <!-- Admin Controls (Common) -->
+      <div class="admin-controls-footer" id="adminControls">
+        <button class="btn btn-secondary" onclick="backQuestion()">
+          ← Back
+        </button>
+        <button
+          class="btn btn-danger"
+          id="stopTimerBtn"
+          onclick="stopTimerButton()"
+        >
+          ⏸ Stop Timer
+        </button>
+        <button
+          class="btn btn-warning"
+          id="unlockBuzzerBtn"
+          onclick="unlockBuzzer()"
+          style="display: none"
+        >
+          Unlock Buzzer
+        </button>
+        <button class="btn btn-primary" onclick="nextQuestion()">Next →</button>
+      </div>
+
+      <img
+        src="../../../public/Asthiven.png"
+        alt="Asthiven"
+        class="footer-logo"
+      />
+    </div>
+
+    <script src="sounds.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

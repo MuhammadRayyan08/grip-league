@@ -1,0 +1,6 @@
+node_modules
+desktop.ini
+
+dist/
+release/
+.DS_Store

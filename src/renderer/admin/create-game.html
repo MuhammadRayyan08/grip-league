@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GRIP League - Create Game</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="create-game.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="create-container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="font-size: 2rem;">Create New Game</h1>
+        <button class="btn btn-secondary" onclick="goBack()">← Back</button>
+      </div>
+
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step active" id="step1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Basic Info</div>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Teams</div>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Round 1</div>
+        </div>
+        <div class="step" id="step4">
+          <div class="step-circle">4</div>
+          <div class="step-label">Round 2</div>
+        </div>
+        <div class="step" id="step5">
+          <div class="step-circle">5</div>
+          <div class="step-label">Extras</div>
+        </div>
+      </div>
+
+      <form id="gameForm">
+        <!-- Step 1: Basic Info -->
+        <div class="section active glass-panel" id="section1" style="padding: 30px;">
+          <h2 style="margin-bottom: 20px; color: var(--primary);">Game Details</h2>
+          <div class="form-group">
+            <label>Game Title *</label>
+            <input type="text" id="gameTitle" required placeholder="e.g., Karachi Event - December 2025">
+          </div>
+          <div class="form-group">
+            <label>Game Type *</label>
+            <select id="gameType" required>
+              <option value="">Select Game Type</option>
+              <option value="RESPIRATORY">RESPIRATORY (ASTHIVEN)</option>
+              <option value="GASTRO">GASTRO (SCIPRIDE)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Number of Teams *</label>
+            <select id="numberOfTeams" required onchange="generateTeamInputs()">
+              <option value="">Select Number</option>
+              <option value="2">2 Teams</option>
+              <option value="3">3 Teams</option>
+              <option value="4">4 Teams</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Step 2: Teams -->
+        <div class="section glass-panel" id="section2" style="padding: 30px;">
+          <h2 style="margin-bottom: 20px; color: var(--primary);">Team Configuration</h2>
+          <div id="teamInputs"></div>
+        </div>
+
+        <!-- Step 3: Round 1 -->
+        <div class="section glass-panel" id="section3" style="padding: 30px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="color: var(--primary);">Round 1 Questions</h2>
+              <p style="color: var(--text-muted);" id="round1Description">Questions will be auto-generated based on team count</p>
+            </div>
+          </div>
+          <div id="round1Questions"></div>
+        </div>
+
+        <!-- Step 4: Round 2 -->
+        <div class="section glass-panel" id="section4" style="padding: 30px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h2 style="color: var(--primary);">Round 2 Questions</h2>
+              <p style="color: var(--text-muted);">Buzzer round questions (10 recommended)</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="addQuestion('round2')">+ Add Question</button>
+          </div>
+          <div id="round2Questions"></div>
+        </div>
+
+        <!-- Step 5: Extras -->
+        <div class="section glass-panel" id="section5" style="padding: 30px;">
+          <h2 style="color: var(--primary); margin-bottom: 20px;">Audience & Tie-Breakers</h2>
+
+          <div style="margin-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3>Audience Questions</h3>
+              <button type="button" class="btn btn-secondary" onclick="addQuestion('audience')">+ Add</button>
+            </div>
+            <div id="audienceQuestions"></div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3>Tie-Breaker Questions</h3>
+              <button type="button" class="btn btn-secondary" onclick="addQuestion('tiebreaker')">+ Add</button>
+            </div>
+            <div id="tiebreakerQuestions"></div>
+          </div>
+
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3>Skip Questions</h3>
+              <p style="color: var(--text-muted); margin: 0;">Add one skip question per team (based on number of teams selected)</p>
+            </div>
+            <div id="skipQuestions"></div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+          <button type="button" class="btn btn-secondary" id="prevBtn" onclick="prevStep()"
+            style="visibility: hidden;">Previous</button>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">Next Step</button>
+          <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Save Game</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="create-game.js"></script>
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function updateStepper() {
+      // Update circles
+      for (let i = 1; i <= totalSteps; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        if (i < currentStep) {
+          stepEl.className = 'step completed';
+          stepEl.querySelector('.step-circle').innerHTML = '✓';
+        } else if (i === currentStep) {
+          stepEl.className = 'step active';
+          stepEl.querySelector('.step-circle').innerHTML = i;
+        } else {
+          stepEl.className = 'step';
+          stepEl.querySelector('.step-circle').innerHTML = i;
+        }
+      }
+
+      // Show/Hide Sections
+      document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+      document.getElementById(`section${currentStep}`).classList.add('active');
+
+      // Update Buttons
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const submitBtn = document.getElementById('submitBtn');
+
+      prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+
+      if (currentStep === totalSteps) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+      } else {
+        nextBtn.style.display = 'block';
+        submitBtn.style.display = 'none';
+      }
+    }
+
+    function nextStep() {
+      if (validateCurrentStep()) {
+        if (currentStep < totalSteps) {
+          currentStep++;
+          updateStepper();
+          window.scrollTo(0, 0);
+        }
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateStepper();
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function validateCurrentStep() {
+      const currentSection = document.getElementById(`section${currentStep}`);
+      const inputs = currentSection.querySelectorAll('input[required], select[required]');
+      let isValid = true;
+
+      inputs.forEach(input => {
+        if (!input.value) {
+          isValid = false;
+          input.style.borderColor = 'var(--danger)';
+          setTimeout(() => input.style.borderColor = '', 2000);
+        }
+      });
+
+      if (!isValid) {
+        alert('Please fill in all required fields before proceeding.');
+      }
+      return isValid;
+    }
+  </script>
+</body>
+
+</html>
